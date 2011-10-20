@@ -581,6 +581,10 @@ public class EventRecurrence {
          * - allows (but ignores) X-* parts
          * - improved validation on various values (e.g. UNTIL timestamps)
          * - error messages are more specific
+         *
+         * TODO: enforce additional constraints listed in RFC 5545, notably the "N/A" entries
+         * in section 3.3.10.  For example, if FREQ=WEEKLY, we should reject a rule that
+         * includes a BYMONTHDAY part.
          */
 
         /* TODO: replace with "if (freq != 0) throw" if nothing requires this */

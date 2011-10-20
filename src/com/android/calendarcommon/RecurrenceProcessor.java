@@ -904,8 +904,26 @@ bysetpos:
                             // to be before dtstart or after the end, because that will be
                             // filtered in the inner loop
                             if (freq == EventRecurrence.WEEKLY) {
-                                int dow = iterator.weekDay;
-                                dayIndex = iterator.monthDay - dow;
+                                /*
+                                 * iterator.weekDay indicates the day of the week (0-6, SU-SA).
+                                 * Because dayIndex might start in the middle of a week, and we're
+                                 * interested in treating a week as a unit, we want to move
+                                 * backward to the start of the week.  (This could make the
+                                 * dayIndex negative, which will be corrected by normalization
+                                 * later on.)
+                                 *
+                                 * The day that starts the week is determined by WKST, which
+                                 * defaults to MO.
+                                 *
+                                 * Example: dayIndex is Tuesday the 8th, and weeks start on
+                                 * Thursdays.  Tuesday is day 2, Thursday is day 4, so we
+                                 * want to move back (2 - 4 + 7) % 7 = 5 days to the previous
+                                 * Thursday.  If weeks started on Mondays, we would only
+                                 * need to move back (2 - 1 + 7) % 7 = 1 day.
+                                 */
+                                int weekStartAdj = (iterator.weekDay -
+                                        EventRecurrence.day2TimeDay(r.wkst) + 7) % 7;
+                                dayIndex = iterator.monthDay - weekStartAdj;
                                 lastDayToExamine = dayIndex + 6;
                             } else {
                                 lastDayToExamine = generated

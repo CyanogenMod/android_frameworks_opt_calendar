@@ -547,18 +547,10 @@ public class RecurrenceProcessorTest extends TestCase {
                 });
     }
 
-    /**
-     * This test fails because of a bug in RecurrenceProcessor.expand(). We
-     * don't have time to fix the bug yet but we don't want to lose track of
-     * this test either. The "failing" prefix on the method name prevents this
-     * test from being run. Remove the "failing" prefix when the bug is fixed.
-     *
-     * @throws Exception
-     */
     @SmallTest
-    public void failingTestWeekly9() throws Exception {
+    public void testWeekly9() throws Exception {
         verifyRecurrence("19970805T100000",
-                "FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=MO",
+                "FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU",   // uses default WKST=MO
                 null /* rdate */, null /* exrule */, null /* exdate */,
                 "19970101T000000", "19980101T000000",
                 new String[]{
@@ -609,6 +601,34 @@ public class RecurrenceProcessorTest extends TestCase {
         } catch (TimeFormatException e) {
             // expected
         }
+    }
+
+    /**
+     * Test repeating weekly event with dtstart and dtend (only one occurrence)
+     * See bug #3267616
+     * @throws Exception
+     */
+    @SmallTest
+    public void testWeekly13() throws Exception {
+        verifyRecurrence("20101117T150000",
+                "FREQ=WEEKLY;BYDAY=WE",
+                null /* rdate */, null /* exrule */, null /* exdate */,
+                "20101117T150000", "20101117T160000",
+                new String[]{ "20101117T150000" });
+    }
+
+    @SmallTest
+    public void testWeekly14() throws Exception {
+        verifyRecurrence("19970805T100000",
+                "FREQ=WEEKLY;INTERVAL=2;COUNT=4;BYDAY=TU,SU;WKST=TH",
+                null /* rdate */, null /* exrule */, null /* exdate */,
+                "19970101T000000", "19980101T000000",
+                new String[]{
+                        "19970805T100000",
+                        "19970817T100000",
+                        "19970819T100000",
+                        "19970831T100000",
+                });
     }
 
     @SmallTest
@@ -2397,18 +2417,6 @@ public class RecurrenceProcessorTest extends TestCase {
                 null /* last */);
     }
 
-    /**
-     * Test repeating weekly event with dtstart and dtend (only one occurrence)
-     * See bug #3267616
-     * @throws Exception
-     */
-    public void testWeekly13() throws Exception {
-        verifyRecurrence("20101117T150000",
-                "FREQ=WEEKLY;BYDAY=WE",
-                null /* rdate */, null /* exrule */, null /* exdate */,
-                "20101117T150000", "20101117T160000",
-                new String[]{ "20101117T150000" });
-    }
 
     // These recurrence rules are used in the loop that measures the performance
     // of recurrence expansion.
