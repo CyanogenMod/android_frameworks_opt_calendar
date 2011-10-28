@@ -17,9 +17,16 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 LOCAL_MODULE := calendar-common
 LOCAL_SDK_VERSION := current
+
+# We want to use libphonenumber in the app.  It's a private API, which means
+# we can't use it directly from an unundled app, so we build a static copy
+# here.  Because it's also part of ext.jar, we need to rename its package,
+# or the class loaders will favor the (possibly incompatible) framework copy.
 LOCAL_SRC_FILES := \
     $(call all-java-files-under, src) \
     $(call all-java-files-under, ../../../external/libphonenumber/java/src)
+LOCAL_JARJAR_RULES := $(LOCAL_PATH)/jarjar-rules.txt
+
 include $(BUILD_STATIC_JAVA_LIBRARY)
 
 # Build the test package
