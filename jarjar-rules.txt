@@ -1,1 +1,0 @@
-rule com.android.i18n.phonenumbers.** com.android.calendarcommon.phonenumbers.@1
