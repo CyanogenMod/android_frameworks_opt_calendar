@@ -747,14 +747,22 @@ public class EventRecurrence {
     /** parses COUNT=[non-negative-integer] */
     private static class ParseCount extends PartParser {
         @Override public int parsePart(String value, EventRecurrence er) {
-            er.count = parseIntRange(value, 0, Integer.MAX_VALUE, true);
+            er.count = parseIntRange(value, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+            if (er.count < 0) {
+                Log.d(TAG, "Invalid Count. Forcing COUNT to 1 from " + value);
+                er.count = 1; // invalid count. assume one time recurrence.
+            }
             return PARSED_COUNT;
         }
     }
     /** parses INTERVAL=[non-negative-integer] */
     private static class ParseInterval extends PartParser {
         @Override public int parsePart(String value, EventRecurrence er) {
-            er.interval = parseIntRange(value, 1, Integer.MAX_VALUE, false);
+            er.interval = parseIntRange(value, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
+            if (er.interval < 1) {
+                Log.d(TAG, "Invalid Interval. Forcing INTERVAL to 1 from " + value);
+                er.interval = 1;
+            }
             return PARSED_INTERVAL;
         }
     }
