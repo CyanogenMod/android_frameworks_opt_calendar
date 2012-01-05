@@ -527,6 +527,135 @@ public class EventRecurrenceTest extends TestCase {
         );
     }
 
+    // INTERVAL = 0 -> Interval = 1 bug #5676414
+    public void test20() throws Exception {
+        verifyRecurType("FREQ=YEARLY;BYMONTHDAY=18;BYMONTH=10;INTERVAL=0;",
+                /* int freq */         EventRecurrence.YEARLY,
+                /* String until */     null,
+                /* int count */        0,
+                /* int interval */     1,
+                /* int[] bysecond */   null,
+                /* int[] byminute */   null,
+                /* int[] byhour */     null,
+                /* int[] byday */      null,
+                /* int[] bydayNum */   null,
+                /* int[] bymonthday */ new int[]{18},
+                /* int[] byyearday */  null,
+                /* int[] byweekno */   null,
+                /* int[] bymonth */    new int[]{10},
+                /* int[] bysetpos */   null,
+                /* int wkst */         EventRecurrence.MO
+        );
+    }
+
+    // Working case: INTERVAL=1 -> Interval = 1 bug #5676414
+    public void test21() throws Exception {
+        verifyRecurType("FREQ=WEEKLY;WKST=SU;INTERVAL=1;BYDAY=MO,TU,WE,TH,FR",
+                /* int freq */         EventRecurrence.WEEKLY,
+                /* String until */     null,
+                /* int count */        0,
+                /* int interval */     1,
+                /* int[] bysecond */   null,
+                /* int[] byminute */   null,
+                /* int[] byhour */     null,
+                /* int[] byday */      new int[] {
+                        EventRecurrence.MO,
+                        EventRecurrence.TU,
+                        EventRecurrence.WE,
+                        EventRecurrence.TH,
+                        EventRecurrence.FR,
+                },
+                /* int[] bydayNum */   new int[]{0, 0, 0, 0, 0},
+                /* int[] bymonthday */ null,
+                /* int[] byyearday */  null,
+                /* int[] byweekno */   null,
+                /* int[] bymonth */    null,
+                /* int[] bysetpos */   null,
+                /* int wkst */         EventRecurrence.SU
+        );
+    }
+
+    // Working case: INTERVAL=2 -> Interval = 2 bug #5676414
+    public void test22() throws Exception {
+        verifyRecurType("FREQ=WEEKLY;WKST=SU;INTERVAL=2;BYDAY=MO,TU,WE,TH,FR",
+                /* int freq */         EventRecurrence.WEEKLY,
+                /* String until */     null,
+                /* int count */        0,
+                /* int interval */     2,
+                /* int[] bysecond */   null,
+                /* int[] byminute */   null,
+                /* int[] byhour */     null,
+                /* int[] byday */      new int[] {
+                        EventRecurrence.MO,
+                        EventRecurrence.TU,
+                        EventRecurrence.WE,
+                        EventRecurrence.TH,
+                        EventRecurrence.FR,
+                },
+                /* int[] bydayNum */   new int[]{0, 0, 0, 0, 0},
+                /* int[] bymonthday */ null,
+                /* int[] byyearday */  null,
+                /* int[] byweekno */   null,
+                /* int[] bymonth */    null,
+                /* int[] bysetpos */   null,
+                /* int wkst */         EventRecurrence.SU
+        );
+    }
+
+    // COUNT < 0 -> Count = 1 bug #5676414
+    public void test23() throws Exception {
+        verifyRecurType("FREQ=WEEKLY;COUNT=-20;BYDAY=MO,TU,WE,TH,FR;",
+                /* int freq */         EventRecurrence.WEEKLY,
+                /* String until */     null,
+                /* int count */        1,
+                /* int interval */     0,
+                /* int[] bysecond */   null,
+                /* int[] byminute */   null,
+                /* int[] byhour */     null,
+                /* int[] byday */      new int[] {
+                        EventRecurrence.MO,
+                        EventRecurrence.TU,
+                        EventRecurrence.WE,
+                        EventRecurrence.TH,
+                        EventRecurrence.FR,
+                },
+                /* int[] bydayNum */   new int[]{0, 0, 0, 0, 0},
+                /* int[] bymonthday */ null,
+                /* int[] byyearday */  null,
+                /* int[] byweekno */   null,
+                /* int[] bymonth */    null,
+                /* int[] bysetpos */   null,
+                /* int wkst */         EventRecurrence.MO
+        );
+    }
+
+    // Working case: COUNT=2 -> Count=2 bug #5676414
+    public void test24() throws Exception {
+        verifyRecurType("FREQ=WEEKLY;COUNT=2;BYDAY=MO,TU,WE,TH,FR;",
+                /* int freq */         EventRecurrence.WEEKLY,
+                /* String until */     null,
+                /* int count */        2,
+                /* int interval */     0,
+                /* int[] bysecond */   null,
+                /* int[] byminute */   null,
+                /* int[] byhour */     null,
+                /* int[] byday */      new int[] {
+                        EventRecurrence.MO,
+                        EventRecurrence.TU,
+                        EventRecurrence.WE,
+                        EventRecurrence.TH,
+                        EventRecurrence.FR,
+                },
+                /* int[] bydayNum */   new int[]{0, 0, 0, 0, 0},
+                /* int[] bymonthday */ null,
+                /* int[] byyearday */  null,
+                /* int[] byweekno */   null,
+                /* int[] bymonth */    null,
+                /* int[] bysetpos */   null,
+                /* int wkst */         EventRecurrence.MO
+        );
+    }
+
     // for your copying pleasure
     public void fakeTestXX() throws Exception {
         verifyRecurType("FREQ=DAILY;",
