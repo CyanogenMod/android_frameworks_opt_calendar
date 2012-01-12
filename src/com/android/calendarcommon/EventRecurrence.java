@@ -136,7 +136,7 @@ public class EventRecurrence {
     }
 
     /** If set, allow lower-case recurrence rule strings.  Minor performance impact. */
-    private static final boolean ALLOW_LOWER_CASE = false;
+    private static final boolean ALLOW_LOWER_CASE = true;
 
     /** If set, validate the value of UNTIL parts.  Minor performance impact. */
     private static final boolean VALIDATE_UNTIL = false;
