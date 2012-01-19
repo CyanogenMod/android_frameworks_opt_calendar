@@ -38,7 +38,7 @@ public class RecurrenceSetTest extends TestCase {
                 + "RRULE:FREQ=DAILY;UNTIL=20080222T000000Z\n"
                 + "EXDATE:20080222T120000Z";
         verifyPopulateContentValues(recurrence, "FREQ=DAILY;UNTIL=20080222T000000Z", null,
-                null, "20080222T120000Z", 1203595200000L, "America/New_York", "P43200S", 0);
+                null, "20080222T120000Z", 1203595200000L, "America/New_York", "P43200S", 0, false);
     }
 
     // Test 1 day all-day event
@@ -47,7 +47,7 @@ public class RecurrenceSetTest extends TestCase {
         String recurrence = "DTSTART;VALUE=DATE:20090821\nDTEND;VALUE=DATE:20090822\n"
                 + "RRULE:FREQ=YEARLY;WKST=SU";
         verifyPopulateContentValues(recurrence, "FREQ=YEARLY;WKST=SU", null,
-                null, null, 1250812800000L, "UTC", "P1D", 1);
+                null, null, 1250812800000L, "UTC", "P1D", 1, false);
     }
 
     // Test 2 day all-day event
@@ -56,7 +56,7 @@ public class RecurrenceSetTest extends TestCase {
         String recurrence = "DTSTART;VALUE=DATE:20090821\nDTEND;VALUE=DATE:20090823\n"
                 + "RRULE:FREQ=YEARLY;WKST=SU";
         verifyPopulateContentValues(recurrence, "FREQ=YEARLY;WKST=SU", null,
-                null, null, 1250812800000L, "UTC",  "P2D", 1);
+                null, null, 1250812800000L, "UTC",  "P2D", 1, false);
     }
 
     // Test multi-rule RRULE.
@@ -67,7 +67,7 @@ public class RecurrenceSetTest extends TestCase {
                 + "RRULE:FREQ=MONTHLY;COUNT=3\n"
                 + "DURATION:P2H";
         verifyPopulateContentValues(recurrence, "FREQ=YEARLY;WKST=SU\nFREQ=MONTHLY;COUNT=3", null,
-                null, null, 1250812800000L, "UTC", "P2H", 1 /*allDay*/);
+                null, null, 1250812800000L, "UTC", "P2H", 1 /*allDay*/, false);
         // allDay=1 just means the start time is 00:00:00 UTC.
     }
 
@@ -80,7 +80,7 @@ public class RecurrenceSetTest extends TestCase {
         verifyPopulateContentValues(recurrence, null,
                 //"TZID=America/Los_Angeles;VALUE=DATE:20110601,20110602,20110603",
                 "America/Los_Angeles;20110601,20110602,20110603", // incorrect
-                null, null, 1250841723000L, "America/Los_Angeles", "P2H", 0 /*allDay*/);
+                null, null, 1250841723000L, "America/Los_Angeles", "P2H", 0 /*allDay*/, false);
         // allDay=1 just means the start time is 00:00:00 UTC.
     }
 
@@ -91,29 +91,56 @@ public class RecurrenceSetTest extends TestCase {
                 + "DTEND;TZID=America/New_York:20090821T110000\n"
                 + "RRULE:FREQ=YEARLY\n";
         verifyPopulateContentValues(recurrence, "FREQ=YEARLY", null,
-                null, null, 1250863200000L, "America/Los_Angeles", "P3600S" /*P1H*/, 0 /*allDay*/);
+                null, null, 1250863200000L, "America/Los_Angeles", "P3600S" /*P1H*/, 0 /*allDay*/,
+                false);
         // TODO: would like to use P1H for duration
 
         String recurrence2 = "DTSTART;TZID=America/New_York:20090821T100000\n"
             + "DTEND;TZID=America/Los_Angeles:20090821T080000\n"
             + "RRULE:FREQ=YEARLY\n";
         verifyPopulateContentValues(recurrence, "FREQ=YEARLY", null,
-                null, null, 1250863200000L, "America/Los_Angeles", "P3600S" /*P1H*/, 0 /*allDay*/);
+                null, null, 1250863200000L, "America/Los_Angeles", "P3600S" /*P1H*/, 0 /*allDay*/,
+                false);
         // TODO: should we rigorously define which tzid becomes the "event timezone"?
     }
 
+    // Test a failure to parse the recurrence data
+    @SmallTest
+    public void testRecurrenceSetBadDstart() throws Exception {
+        String recurrence = "DTSTART;TZID=GMT+05:30:20080221T070000\n"
+                + "DTEND;TZID=GMT+05:30:20080221T190000\n"
+                + "RRULE:FREQ=DAILY;UNTIL=20080222T000000Z\n"
+                + "EXDATE:20080222T120000Z";
+        verifyPopulateContentValues(recurrence, "FREQ=DAILY;UNTIL=20080222T000000Z", null,
+                null, "20080222T120000Z", 1203595200000L, "America/New_York", "P43200S", 0, true);
+    }
+
+    @SmallTest
+    public void testRecurrenceSetBadRrule() throws Exception {
+        String recurrence = "DTSTART;TZID=America/New_York:20080221T070000\n"
+                + "DTEND;TZID=GMT+05:30:20080221T190000\n"
+                + "RRULE:FREQ=NEVER;UNTIL=20080222T000000Z\n"
+                + "EXDATE:20080222T120000Z";
+        verifyPopulateContentValues(recurrence, "FREQ=DAILY;UNTIL=20080222T000000Z", null,
+                null, "20080222T120000Z", 1203595200000L, "America/New_York", "P43200S", 0, true);
+    }
 
     // run populateContentValues and verify the results
     private void verifyPopulateContentValues(String recurrence, String rrule, String rdate,
-            String exrule, String exdate, long dtstart, String tzid, String duration, int allDay)
+            String exrule, String exdate, long dtstart, String tzid, String duration, int allDay,
+            boolean badFormat)
             throws ICalendar.FormatException {
         ICalendar.Component recurrenceComponent =
                 new ICalendar.Component("DUMMY", null /* parent */);
         ICalendar.parseComponent(recurrenceComponent, recurrence);
         ContentValues values = new ContentValues();
-        RecurrenceSet.populateContentValues(recurrenceComponent, values);
+        boolean result = RecurrenceSet.populateContentValues(recurrenceComponent, values);
         Log.d("KS", "values " + values);
 
+        if (badFormat) {
+            assertEquals(result, !badFormat);
+            return;
+        }
         assertEquals(rrule, values.get(android.provider.CalendarContract.Events.RRULE));
         assertEquals(rdate, values.get(android.provider.CalendarContract.Events.RDATE));
         assertEquals(exrule, values.get(android.provider.CalendarContract.Events.EXRULE));
@@ -124,4 +151,5 @@ public class RecurrenceSetTest extends TestCase {
         assertEquals(allDay,
                 (int) values.getAsInteger(android.provider.CalendarContract.Events.ALL_DAY));
     }
+
 }

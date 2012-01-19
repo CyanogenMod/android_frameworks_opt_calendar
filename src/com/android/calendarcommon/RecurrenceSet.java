@@ -178,61 +178,67 @@ public class RecurrenceSet {
      */
     public static boolean populateContentValues(ICalendar.Component component,
             ContentValues values) {
-        ICalendar.Property dtstartProperty =
-                component.getFirstProperty("DTSTART");
-        String dtstart = dtstartProperty.getValue();
-        ICalendar.Parameter tzidParam =
-                dtstartProperty.getFirstParameter("TZID");
-        // NOTE: the timezone may be null, if this is a floating time.
-        String tzid = tzidParam == null ? null : tzidParam.value;
-        Time start = new Time(tzidParam == null ? Time.TIMEZONE_UTC : tzid);
-        boolean inUtc = start.parse(dtstart);
-        boolean allDay = start.allDay;
+        try {
+            ICalendar.Property dtstartProperty =
+                    component.getFirstProperty("DTSTART");
+            String dtstart = dtstartProperty.getValue();
+            ICalendar.Parameter tzidParam =
+                    dtstartProperty.getFirstParameter("TZID");
+            // NOTE: the timezone may be null, if this is a floating time.
+            String tzid = tzidParam == null ? null : tzidParam.value;
+            Time start = new Time(tzidParam == null ? Time.TIMEZONE_UTC : tzid);
+            boolean inUtc = start.parse(dtstart);
+            boolean allDay = start.allDay;
 
-        // We force TimeZone to UTC for "all day recurring events" as the server is sending no
-        // TimeZone in DTSTART for them
-        if (inUtc || allDay) {
-            tzid = Time.TIMEZONE_UTC;
-        }
+            // We force TimeZone to UTC for "all day recurring events" as the server is sending no
+            // TimeZone in DTSTART for them
+            if (inUtc || allDay) {
+                tzid = Time.TIMEZONE_UTC;
+            }
 
-        String duration = computeDuration(start, component);
-        String rrule = flattenProperties(component, "RRULE");
-        String rdate = extractDates(component.getFirstProperty("RDATE"));
-        String exrule = flattenProperties(component, "EXRULE");
-        String exdate = extractDates(component.getFirstProperty("EXDATE"));
+            String duration = computeDuration(start, component);
+            String rrule = flattenProperties(component, "RRULE");
+            String rdate = extractDates(component.getFirstProperty("RDATE"));
+            String exrule = flattenProperties(component, "EXRULE");
+            String exdate = extractDates(component.getFirstProperty("EXDATE"));
 
-        if ((TextUtils.isEmpty(dtstart))||
-                (TextUtils.isEmpty(duration))||
-                ((TextUtils.isEmpty(rrule))&&
-                        (TextUtils.isEmpty(rdate)))) {
+            if ((TextUtils.isEmpty(dtstart))||
+                    (TextUtils.isEmpty(duration))||
+                    ((TextUtils.isEmpty(rrule))&&
+                            (TextUtils.isEmpty(rdate)))) {
+                    if (false) {
+                        Log.d(TAG, "Recurrence missing DTSTART, DTEND/DURATION, "
+                                    + "or RRULE/RDATE: "
+                                    + component.toString());
+                    }
+                    return false;
+            }
+
+            if (allDay) {
+                start.timezone = Time.TIMEZONE_UTC;
+            }
+            long millis = start.toMillis(false /* use isDst */);
+            values.put(CalendarContract.Events.DTSTART, millis);
+            if (millis == -1) {
                 if (false) {
-                    Log.d(TAG, "Recurrence missing DTSTART, DTEND/DURATION, "
-                                + "or RRULE/RDATE: "
-                                + component.toString());
+                    Log.d(TAG, "DTSTART is out of range: " + component.toString());
                 }
                 return false;
-        }
-
-        if (allDay) {
-            start.timezone = Time.TIMEZONE_UTC;
-        }
-        long millis = start.toMillis(false /* use isDst */);
-        values.put(CalendarContract.Events.DTSTART, millis);
-        if (millis == -1) {
-            if (false) {
-                Log.d(TAG, "DTSTART is out of range: " + component.toString());
             }
+
+            values.put(CalendarContract.Events.RRULE, rrule);
+            values.put(CalendarContract.Events.RDATE, rdate);
+            values.put(CalendarContract.Events.EXRULE, exrule);
+            values.put(CalendarContract.Events.EXDATE, exdate);
+            values.put(CalendarContract.Events.EVENT_TIMEZONE, tzid);
+            values.put(CalendarContract.Events.DURATION, duration);
+            values.put(CalendarContract.Events.ALL_DAY, allDay ? 1 : 0);
+            return true;
+        } catch (TimeFormatException e) {
+            // Something is wrong with the format of this event
+            Log.i(TAG,"Failed to parse event: " + component.toString());
             return false;
         }
-
-        values.put(CalendarContract.Events.RRULE, rrule);
-        values.put(CalendarContract.Events.RDATE, rdate);
-        values.put(CalendarContract.Events.EXRULE, exrule);
-        values.put(CalendarContract.Events.EXDATE, exdate);
-        values.put(CalendarContract.Events.EVENT_TIMEZONE, tzid);
-        values.put(CalendarContract.Events.DURATION, duration);
-        values.put(CalendarContract.Events.ALL_DAY, allDay ? 1 : 0);
-        return true;
     }
 
     // This can be removed when the old CalendarSyncAdapter is removed.
