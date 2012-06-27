@@ -15,7 +15,7 @@
 ** limitations under the License.
 */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
 import android.os.Debug;
 import android.test.suitebuilder.annotation.LargeTest;

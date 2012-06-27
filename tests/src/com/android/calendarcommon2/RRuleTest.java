@@ -17,9 +17,9 @@
 
 /* Based on http://code.google.com/p/google-rfc-2445/source/browse/trunk/test/com/google/ical/iter/RRuleIteratorImplTest.java */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
-import com.android.calendarcommon.RecurrenceSet;
+import com.android.calendarcommon2.RecurrenceSet;
 
 import android.os.Debug;
 import android.test.suitebuilder.annotation.MediumTest;

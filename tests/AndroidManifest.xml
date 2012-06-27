@@ -15,13 +15,13 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        package="com.android.calendarcommon.tests">
+        package="com.android.calendarcommon2.tests">
 
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
 
     <instrumentation android:name="android.test.InstrumentationTestRunner"
-            android:targetPackage="com.android.calendarcommon.tests"
+            android:targetPackage="com.android.calendarcommon2.tests"
             android:label="TestRunner letting users run CalendarCommon Library Tests" />
 </manifest>

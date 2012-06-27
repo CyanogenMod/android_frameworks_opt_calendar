@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
-import com.android.calendarcommon.EventRecurrence.InvalidFormatException;
+import com.android.calendarcommon2.EventRecurrence.InvalidFormatException;
 
 import android.test.suitebuilder.annotation.SmallTest;
 import android.test.suitebuilder.annotation.Suppress;
@@ -28,8 +28,8 @@ import java.util.Arrays;
 /**
  * Test android.pim.EventRecurrence.
  *
- * adb shell am instrument -w -e class com.android.calendarcommon.EventRecurrenceTest \
- *   com.android.calendarcommon.tests/android.test.InstrumentationTestRunner
+ * adb shell am instrument -w -e class com.android.calendarcommon2.EventRecurrenceTest \
+ *   com.android.calendarcommon2.tests/android.test.InstrumentationTestRunner
  */
 public class EventRecurrenceTest extends TestCase {
 
