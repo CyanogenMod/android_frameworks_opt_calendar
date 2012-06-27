@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
 import android.content.ContentValues;
 import android.database.Cursor;

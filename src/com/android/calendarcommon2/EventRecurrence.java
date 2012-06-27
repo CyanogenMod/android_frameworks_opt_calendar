@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
 import android.text.TextUtils;
 import android.text.format.Time;

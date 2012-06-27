@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.calendarcommon;
+package com.android.calendarcommon2;
 
-import com.android.calendarcommon.ICalendar;
-import com.android.calendarcommon.RecurrenceSet;
+import com.android.calendarcommon2.ICalendar;
+import com.android.calendarcommon2.RecurrenceSet;
 
 import android.content.ContentValues;
 import android.test.suitebuilder.annotation.SmallTest;
